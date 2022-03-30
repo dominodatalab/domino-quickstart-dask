@@ -9,7 +9,7 @@
 
 Before launching a Dask cluster in Domino, you will need to have two Compute Environments set up:
 - "Dask Workspace Environment" (please refer to appendix A for more information).
-- "Dask base cluster environment" (please refer to appendix B for more information).
+- "Dask Base Cluster Environment" (please refer to appendix B for more information).
 
 You may want to check with your Domino admin to see if suitable Dask environments are already available before creating your own, or ask them to follow the instructions in appendix A and B to create "Global" environments so that any users can make use of them.
 
@@ -41,7 +41,7 @@ If you are reading this README in a Domino project that has been shared with you
       - Select Dask
       - Set the min number of workers to "3" (do not select Auto-scale workers if it is available)
       - (optional) Choose a Hardware Tier for the Worker and Scheduler - again we recommend staying with the default
-      - Choose "Dask base cluster environment" from the "Cluster Compute Environment" dropdown (refer to step 0 in this README)
+      - Choose "Dask Base Cluster Environment" from the "Cluster Compute Environment" dropdown (refer to step 0 in this README)
       - (optional) Select the checkbox of dedicated storage (we will not make use of this in the example notebooks)
 - Now hit the green "Launch" button
 
@@ -53,7 +53,7 @@ If you are reading this README in a Domino project that has been shared with you
 - This tab provides all the details about the logs of the scheduler, worker nodes, and other Dask features. We recommend paying particular attention to the following:
   - **Workers**: Note that in some circumstances, not all workers may be ready when the Dask cluster first shows as Ready. This may happen if there is room on existing nodes for your Workspace and the Dask Scheduler, but not for all of the worker nodes. If they are just waiting for new nodes to be provisioned, they should come up in a few minutes, and you should see them join the list.
   - **Task Stream**: There are a few places in the example notebooks where we recommend looking at the Task Stream side by side with running the code, so that you can get some intuition for what the Dask workers are really doing during that time.
-  - **Info**: This page contains a link to the **logs** for each worker, which are extremely useful for troubleshooting package installation issues or any other error that happens on the Dask workers, where the errors are not clear from the messages in the notebook alone.
+  - **Info**: This page contains a link to the **logs** for each worker, which are extremely useful for troubleshooting package installation issues or any other error that happens on the Dask workers, where the errors are not clear from the messages in the notebook alone. We recommend opening the logs link in a new tab; to return to the main Dask Web UI from the Info screen, click the **Bokeh** button.
 - Once you have verified on the Dask Web UI that your cluster is ready, run each of the sample notebooks.
   - `1-Calculate-Pi.ipynb`: Example of Embarassingly Parallel workloads in Dask, which will also test the basic compute environment and cluster setup.
   - `2-Dask-DataFrame.ipynb`: General introduction to Dask Dataframes.
@@ -67,65 +67,61 @@ If you are reading this README in a Domino project that has been shared with you
 
 ## Appendix A: creating a Dask workspace environment
 
-For a general introduction to Compute Environments in Domino, see the [Domino documentation](https://docs.dominodatalab.com/en/5.0/reference/environments/index.html) (be sure to select your current Domino version). To create a Dask workspace environment for use with this project simply follow these steps, adapted for our specific example from the [Domino Dask documentation](https://docs.dominodatalab.com/en/latest/reference/dask/Configuring_prerequisites.html):
+To create a Dask workspace environment for use with this project follow these steps.
+If you are not familiar with Compute Environments in Domino, there is a general introduction in the [Domino documentation](https://docs.dominodatalab.com/en/5.0/reference/environments/index.html) (be sure to select your current Domino version).
+Additional background on Dask environment setup can be found in the [Domino Dask documentation](https://docs.dominodatalab.com/en/5.0/reference/dask/Configuring_prerequisites.html).
 
 1. Create a new Environment and name it "Dask Workspace Environment" (or a name of your choice)
-2. For the base image select "custom image" and enter `quay.io/domino/standard-environment:ubuntu18-py3.8-r4.1-domino5.0`
+2. For the base image select "custom image" and enter `quay.io/domino/dask-environment:ubuntu18-py3.8-r4.1-dask2021.10.0-domino5.0` (see our [Compute Environment Catalog](https://docs.dominodatalab.com/en/5.0/ecosystem.html#compute-environment-catalog))
 3. Do not select "Dask" as a supported cluster; that is only needed for the cluster environment (see appendix B)
 4. Edit visibility if desired, then create the environment.
-5. Edit the Dockerfile, then add the following to the Dockerfile instructions. Note that only `dask` and `dask-ml` are strictly required for our examples, but installing the specified versions of the remaining packages will prevent warnings about version mismatch, and reduce the chance of future errors.
-    ```
-    USER root
-    ENV DASK_VERSION=2021.10.0
-    ENV DASK_ML_VERSION=2022.1.22
-    
-    RUN pip install dask[complete]==$DASK_VERSION \
-                    dask-ml[complete]==$DASK_ML_VERSION \
-                    blosc==1.10.2 \
-                    lz4==3.1.3 \
-                    msgpack==1.0.2 \
-                    numpy==1.21.1 \
-                    pandas==1.3.0 \
-                    toolz==0.11.1 
-    
-    USER ubuntu
-    ```
-5. Add the following to the Pluggable Workspace Tools.
-    ```
-    jupyterlab:
-      title: "JupyterLab"
-      iconUrl: "/assets/images/workspace-logos/jupyterlab.svg"
-      start: [  /var/opt/workspaces/Jupyterlab/start.sh ]
-      httpProxy:
-        internalPath: "/{{ownerUsername}}/{{projectName}}/{{sessionPathComponent}}/{{runId}}/{{#if pathToOpen}}tree/{{pathToOpen}}{{/if}}"
-        port: 8888
-        rewrite: false
-        requireSubdomain: false
-    vscode:
-      title: "vscode"
-      iconUrl: "/assets/images/workspace-logos/vscode.svg"
-      start: [ "/var/opt/workspaces/vscode/start" ]
-      httpProxy:
-        port: 8888
-        requireSubdomain: false
-    ```
-6. Click "Build".
+5. Edit the Dockerfile, then add the following to the Dockerfile instructions. This is required to resolve a version compatibility issue for a particular package dependency in the worker environment in Appendix B. It impacts only the `dask-ml` example in the third notebook.
+
+```
+USER root
+RUN pip install numba==0.55.1
+USER ubuntu
+```
+
+6. Add the following to the Pluggable Workspace Tools.
+
+```
+jupyterlab:
+  title: "JupyterLab"
+  iconUrl: "/assets/images/workspace-logos/jupyterlab.svg"
+  start: [  /var/opt/workspaces/Jupyterlab/start.sh ]
+  httpProxy:
+    internalPath: "/{{ownerUsername}}/{{projectName}}/{{sessionPathComponent}}/{{runId}}/{{#if pathToOpen}}tree/{{pathToOpen}}{{/if}}"
+    port: 8888
+    rewrite: false
+    requireSubdomain: false
+vscode:
+  title: "vscode"
+  iconUrl: "/assets/images/workspace-logos/vscode.svg"
+  start: [ "/var/opt/workspaces/vscode/start" ]
+  httpProxy:
+    port: 8888
+    requireSubdomain: false
+```
+
+7. Click "Build".
 
 ## Appendix B: creating a Dask base cluster environment
 
-1. Create a new Environment and name it "Dask base cluster environment" (or a name of your choice)
+1. Create a new Environment and name it "Dask Base Cluster Environment" (or a name of your choice)
 2. For the base image select "custom image" and enter `daskdev/dask:2021.10.0`
 3. Select "Dask" under "Supported Clusters"
 4. Edit visibility if desired, then create the environment.
 5. Edit the Dockerfile, then add the following to the Dockerfile instructions. 
-    ```
-    ENV DASK_ML_VERSION=2022.1.22
-    RUN pip install dask-ml[complete]==$DASK_ML_VERSION
-    ```
+
+```
+RUN pip install dask-ml[complete]==2021.10.17
+```
+
 6. Click "Build".
 
 __
 
 For more information about on-demand Dask please check out the [Domino documentation](https://docs.dominodatalab.com/en/5.0.1/reference/dask/On_demand_dask_overview.html).
 This quick-start was developed and tested on Domino 5.0, so please select your Domino version on the docs site to see the most up-to-date Dask reference for your version.
-- For Domino 5.0, the validated and supported version of Dask is 2021.10.0. This is likely to work on other versions as well, but please check the docs for your Domino version to find the official supported version of Dask.
+For Domino 5.0, the validated and supported version of Dask is 2021.10.0. This is likely to work on other versions as well, but please check the docs for your Domino version to find the official supported version of Dask.
