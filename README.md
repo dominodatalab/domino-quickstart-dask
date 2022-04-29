@@ -120,6 +120,60 @@ RUN pip install dask-ml[complete]==2021.10.17
 
 6. Click "Build".
 
+
+## Appendix A  - Domino 5.1 : creating a Dask workspace environment
+
+To create a Dask workspace environment for use with this project follow these steps.
+If you are not familiar with Compute Environments in Domino, there is a general introduction in the [Domino documentation](https://docs.dominodatalab.com/en/5.1/user_guide/997198/customize-the-domino-software-environment/) (be sure to select your current Domino version).
+Additional background on Dask environment setup can be found in the [Domino Dask documentation](https://docs.dominodatalab.com/en/5.1/user_guide/3e137b/configure-prerequisites/).
+
+1. Create a new Environment and name it "Dask Workspace Environment" (or a name of your choice)
+2. For the base image select "Start from a custom base image" and enter `quay.io/domino/dask-environment:ubuntu18-py3.8-r4.1-dask2022.1.0-domino5.1` (see our [Compute Environment Catalog](https://docs.dominodatalab.com/en/5.1/user_guide/71a047/tech-ecosystem/#compute-environment-catalog))
+3. The option "Automatically make compatible with Domino" will be gone after pasting the quay.io image path
+4. Do not select "Dask" as a supported cluster; that is only needed for the cluster environment (see appendix B)
+5. (Adimins only)Edit visibility if desired, then create the environment.
+6. Select "Customize before building"
+7. Do not edit the Dockerfile. I,e,. leave it empty.
+8. Add the following to the Pluggable Workspace Tools.
+
+```
+jupyterlab:
+  title: "JupyterLab"
+  iconUrl: "/assets/images/workspace-logos/jupyterlab.svg"
+  start: [  /var/opt/workspaces/Jupyterlab/start.sh ]
+  httpProxy:
+    internalPath: "/{{ownerUsername}}/{{projectName}}/{{sessionPathComponent}}/{{runId}}/{{#if pathToOpen}}tree/{{pathToOpen}}{{/if}}"
+    port: 8888
+    rewrite: false
+    requireSubdomain: false
+vscode:
+  title: "vscode"
+  iconUrl: "/assets/images/workspace-logos/vscode.svg"
+  start: [ "/var/opt/workspaces/vscode/start" ]
+  httpProxy:
+    port: 8888
+    requireSubdomain: false
+```
+
+7. Click "Build".
+
+## Appendix B - Domino 5.1: creating a Dask base cluster environment
+
+1. Create a new Environment and name it "Dask Base Cluster Environment" (or a name of your choice)
+2. For the base image select "Start from a custom base image" and enter `daskdev/dask:2022.1.0`
+3. The option "Automatically make compatible with Domino" will be gone after selecting "Dask" in the following step
+3. Select "Dask" under "Supported Clusters"
+4. (Adimins only)Edit visibility if desired, then create the environment.
+5. Select "Customize before building"
+6. Edit the Dockerfile, then add the following to the Dockerfile instructions. 
+
+```
+RUN pip install dask-ml[complete]==2021.11.30
+```
+
+6. Click "Build".
+
+
 __
 
 For more information about on-demand Dask please check out the [Domino documentation](https://docs.dominodatalab.com/en/5.0.1/reference/dask/On_demand_dask_overview.html).
