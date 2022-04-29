@@ -175,7 +175,8 @@ RUN pip install dask-ml[complete]==2021.11.30
 
 
 __
+_
+For more information about on-demand Dask please check out the [Domino documentation](https://docs.dominodatalab.com/en/5.1/user_guide/747a51/on-demand-dask-overview/).
+This quick-start was developed and tested on Domino 5.1, so please select your Domino version on the docs site to see the most up-to-date Dask reference for your version.
+For Domino 5.1, the validated and supported version of Dask is 2021.10.0. This is likely to work on other versions as well, but please check the docs for your Domino version to find the official supported version of Dask.
 
-For more information about on-demand Dask please check out the [Domino documentation](https://docs.dominodatalab.com/en/5.0.1/reference/dask/On_demand_dask_overview.html).
-This quick-start was developed and tested on Domino 5.0, so please select your Domino version on the docs site to see the most up-to-date Dask reference for your version.
-For Domino 5.0, the validated and supported version of Dask is 2021.10.0. This is likely to work on other versions as well, but please check the docs for your Domino version to find the official supported version of Dask.
