@@ -67,7 +67,7 @@ If you are reading this README in a Domino project that has been shared with you
 
 
 
-## Appendix A  - Domino 5.1 : creating a Dask workspace environment
+## Appendix A : creating a Dask workspace environment
 
 To create a Dask workspace environment for use with this project follow these steps.
 If you are not familiar with Compute Environments in Domino, there is a general introduction in the [Domino documentation](https://docs.dominodatalab.com/en/5.1/user_guide/997198/customize-the-domino-software-environment/) (be sure to select your current Domino version).
@@ -103,15 +103,15 @@ vscode:
 
 7. Click "Build".
 
-## Appendix B - Domino 5.1: creating a Dask base cluster environment
+## Appendix B : creating a Dask base cluster environment
 
 1. Create a new Environment and name it "Dask Base Cluster Environment" (or a name of your choice)
 2. For the base image select "Start from a custom base image" and enter `daskdev/dask:2022.1.0`
 3. The option "Automatically make compatible with Domino" will be gone after selecting "Dask" in the following step
-3. Select "Dask" under "Supported Clusters"
-4. Edit visibility if desired (relevant for admins or users sharing with an organization)
-5. Select "Customize before building"
-6. Edit the Dockerfile, then add the following to the Dockerfile instructions. 
+4. Select "Dask" under "Supported Clusters"
+5. Edit visibility if desired (relevant for admins or users sharing with an organization)
+6. Select "Customize before building"
+7. Edit the Dockerfile, then add the following to the Dockerfile instructions. 
 
 ```
 RUN pip install dask-ml[complete]==2021.11.30
@@ -130,7 +130,7 @@ For Domino 5.1, the validated and supported version of Dask is 2022.1.0. This is
 
 #### Note: If you are using the Dask versions validated for *Domino 5.0*, follow the same instructions in Appendix A and B with the following minor changes:
 
-- In Appendix A step 2, replace quay.io/domino/dask-environment:ubuntu18-py3.8-r4.1-dask2022.1.0-domino5.1 with quay.io/domino/dask-environment:ubuntu18-py3.8-r4.1-dask2021.10.0-domino5.0
+- In Appendix A step 2, replace `quay.io/domino/dask-environment:ubuntu18-py3.8-r4.1-dask2022.1.0-domino5.1` with `quay.io/domino/dask-environment:ubuntu18-py3.8-r4.1-dask2021.10.0-domino5.0`
 
 - In Appendix A step 7, add the following to the Dockerfile. This is required to resolve a version compatibility issue for a particular package dependency in the worker environment in Appendix B. It impacts only the dask-ml example in the third notebook.
 
@@ -140,7 +140,7 @@ RUN pip install numba==0.55.1
 USER ubuntu
 ```
 
-In Appendix B step 2, replace daskdev/dask:2022.1.0, with daskdev/dask:2021.10.0  
+In Appendix B step 2, replace `daskdev/dask:2022.1.0`, with `daskdev/dask:2021.10.0`  
 
 In Appendix B step 3, use the following Dockerfile:
 ```
